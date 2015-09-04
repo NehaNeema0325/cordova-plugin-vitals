@@ -8,7 +8,11 @@
     <license>MIT</license>
     <keywords>phonegap,vitals</keywords>
  
-    
+    <js-module src="www/VitalReadingPlugin.js" name="VitalReadingPlugin">
+             <!--<clobbers target="cordova.plugins.vitalreading" />
+             <clobbers target="plugin.vitalreading" />-->
+             <clobbers target="VitalReadingPlugin" />
+    </js-module>
  
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
@@ -34,10 +38,35 @@
             <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
         </config-file>
         
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+             <service
+                android:name="com.jiuan.android.sdk.ble.manager.LPCBT422Service"
+                android:enabled="true" />
+            <service
+                android:name="com.jiuan.android.sdk.ble.manager.LPCBT43Service"
+                android:enabled="true" />
+        </config-file>   
+        <config-file target="AndroidManifest.xml" parent="/manifest/application/activity">
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
+        </config-file>  
+        <source-file src="libs/d2xx.jar" target-dir="libs/" />
+        <source-file src="libs/iHealthLibrary_1.0.14.jar" target-dir="libs/" />
+        <source-file src="libs/LPCBT.jar" target-dir="libs/" />
+        <source-file src="libs/samsung_ble_sdk_200.jar" target-dir="libs/" />
+        <source-file src="libs/android-support-v4.jar" target-dir="libs/" />
+        <source-file src="libs/armeabi" target-dir="libs/" />
+        <source-file src="libs/armeabi-v7a" target-dir="libs/" />
+        
         <source-file src="src/android/VitalReadingPlugin.java" target-dir="src/org/medsolis/vitalreading" />
-        <js-module src="VitalReadingPlugin.js" name="VitalReadingPlugin">
-             <clobbers target="cordova.plugins.vitalreading" />
-             <clobbers target="plugin.vitalreading" />
-        </js-module>
+        <source-file src="src/android/DatabaseHandler.java" target-dir="src/org/medsolis/vitalreading"/>
+        <source-file src="src/android/DeviceList.java" target-dir="src/org/medsolis/vitalreading" />
+        <source-file src="src/android/SPConnectApplication.java" target-dir="src/org/medsolis/vitalreading" />
+        <source-file src="src/android/SPReadingApplication.java" target-dir="src/org/medsolis/vitalreading" />
+        
     </platform>         
 </plugin>
