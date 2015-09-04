@@ -54,6 +54,7 @@
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
         </config-file>  
+        <source-file src="res/xml/device_filter.xml" target-dir="res/xml/" />
         <source-file src="libs/d2xx.jar" target-dir="libs/" />
         <source-file src="libs/iHealthLibrary_1.0.14.jar" target-dir="libs/" />
         <source-file src="libs/LPCBT.jar" target-dir="libs/" />
