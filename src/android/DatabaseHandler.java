@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
-	 
+     
     // All Static variables
     // Database Version
     private static final int DATABASE_VERSION = 1;
@@ -27,7 +27,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
  
     public DatabaseHandler(Context context) {
         super(context, Environment.getExternalStorageDirectory()
-        	    + File.separator+ DATABASE_NAME, null, DATABASE_VERSION);
+                + File.separator+ DATABASE_NAME, null, DATABASE_VERSION);
     }
  
     // Creating Tables

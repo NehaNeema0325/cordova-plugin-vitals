@@ -1,4 +1,4 @@
-package org.medsolis.vitalreading;
+package com.medsolis.plugin.iHealthDeviceReading;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.PluginResult;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.jiuan.android.sdk.device.DeviceManager;
@@ -21,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.graphics.Paint.Join;
 import android.os.Handler;
 import android.os.Message;
 
@@ -48,9 +50,9 @@ public class SPConnectApplication implements Interface_Observer_CommMsg_PO
 	    this.callbackContext = callbackContext;
 	    mDeviceList = new ArrayList<HashMap<String, String>>();
 	   
-	    userId = "maveriklko9719@gmail.com";
-		clientID = "c7939dd4f608492dbe2718a46d7e239f";
-		clientSecret = "4d83740f3b204290a003804af748a45c";
+	    userId = "shravan@medsolis.com";//"maveriklko9719@gmail.com";
+		//clientID = "c7939dd4f608492dbe2718a46d7e239f";
+		//clientSecret = "4d83740f3b204290a003804af748a45c";
         
 		deviceManager.initDeviceManager(context, userId);
         deviceManager.initReceiver();
@@ -90,25 +92,35 @@ public class SPConnectApplication implements Interface_Observer_CommMsg_PO
             String mac = (String) key;
             String type =  deviceMap.get(key);
             try {
-            	//check if scanned mac id present in local DB than ignore it
+            	  //check if scanned mac id present in local DB than ignore it
             	  Cursor cursor = VitalReadingPlugin.db.getDevice(mac);
             	  if(cursor.getCount() == 0)
 				  {
-            		JSONObject obj = new JSONObject();
-            		obj.put("type", type);
-    				obj.put("mac", mac);
-    				obj.put("flag", "scan");
-    				
-                    //Save scanned device in local DB
+   
+    	            //Save scanned device in local DB
     			    deviceList = new DeviceList();
     				deviceList.setDeviceMAC(mac);
     				deviceList.setDeviceType(deviceMap.get(key));
-    				returnResult(obj.toString());
+    				//Save scanned device in local DB
+    				VitalReadingPlugin.db.addDevice(deviceList);
+    				JSONObject obj = new JSONObject();
+    				
+            		if(type.equalsIgnoreCase("PO3"))
+            		    obj.put("type", "Pulse Ox");
+            		else
+            			 obj.put("type", type);
+    				obj.put("mac", mac);
+    				obj.put("flag", "scan");
+    				//Return total device found count
+              	    Cursor totalCursor = VitalReadingPlugin.db.getAllDevices();
+    				obj.put("count", totalCursor.getCount());
+    		        returnResult(obj.toString());
 				}
-            	else{
+            	/*else{
             		SPReadingApplication spReadingApp = null;
             	    spReadingApp = new SPReadingApplication(context,callbackContext,type,mac);
-            	}
+            	    //spReadingApp.startConnect();
+            	}*/
              } catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -120,11 +132,45 @@ public class SPConnectApplication implements Interface_Observer_CommMsg_PO
 
 	public void returnResult(String listJson)
 	{
-		//Save scanned device in local DB
-		VitalReadingPlugin.db.addDevice(deviceList);
-		PluginResult result = new PluginResult(PluginResult.Status.OK, listJson.toString());
+		
+	    PluginResult result = new PluginResult(PluginResult.Status.OK, listJson.toString());
 	    result.setKeepCallback(true);
 	    callbackContext.sendPluginResult(result);
+	}
+	
+	public void getScannedDevice()
+	{
+		SPConnectApplication spConnectApp = new SPConnectApplication(context,callbackContext);
+   	    spConnectApp.scanDevice();
+   	  
+		Cursor totalCursor = VitalReadingPlugin.db.getAllDevices();
+		JSONObject obj = new JSONObject();
+	
+		try
+		{
+		  if(totalCursor.getCount() > 0)
+		  {
+			if (totalCursor.moveToFirst()) {
+		        do {
+		          String savedMac = totalCursor.getString(1);
+		          String savedType = totalCursor.getString(0);
+		          SPReadingApplication spReadingApp = null;
+            	  spReadingApp = new SPReadingApplication(context,callbackContext,savedType,savedMac);
+            	   //spReadingApp.startConnect();
+				 } while (totalCursor.moveToNext());
+		      }
+		  }
+		  else
+		  {	obj.put("count", totalCursor.getCount());
+			obj.put("flag", "available");
+			PluginResult result = new PluginResult(PluginResult.Status.OK, obj.toString());
+		    result.setKeepCallback(true);
+		    callbackContext.sendPluginResult(result);
+		 }
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 	
     private void refresh() {
