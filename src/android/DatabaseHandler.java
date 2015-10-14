@@ -1,4 +1,4 @@
-package org.medsolis.vitalreading;
+package com.medsolis.plugin.iHealthDeviceReading;
 
 import java.io.File;
 

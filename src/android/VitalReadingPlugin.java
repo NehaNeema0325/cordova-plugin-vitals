@@ -15,6 +15,7 @@ public class VitalReadingPlugin extends CordovaPlugin {
     public static final String ACTION_CONNECT = "connect";
     public static final String ACTION_VIEW_READING = "viewReading";
     public static final String ACTION_EXIST = "existing";
+    public static int connectCount = 0;
     SPConnectApplication spConnectApp;
     SPReadingApplication spReadingApp;
     String type,mac;
